@@ -13,11 +13,12 @@
  * limitations under the License.
  */
 
+
+import grails.util.Holders as CH
 import org.activiti.engine.runtime.ProcessInstance
 import org.activiti.engine.task.Task
 import grails.util.GrailsNameUtils
 import grails.util.Environment
-import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH
 import org.codehaus.groovy.grails.commons.ControllerArtefactHandler
 import org.springframework.core.io.Resource 
 import org.grails.activiti.ActivitiConstants
@@ -31,14 +32,18 @@ import org.grails.activiti.serializable.SerializableVariableType
  */
 class ActivitiGrailsPlugin {
     // the plugin version
-    def version = "5.12.1"
+    def version = "5.15.1"
+
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "2.0.0 > *"
+
     // the other plugins this plugin depends on
     def dependsOn = [:]
+
     // resources that are excluded from plugin packaging
     def pluginExcludes = [
-            "grails-app/views/error.gsp"
+      "grails-app/views/error.gsp",
+	    "src/groovy/org/grails/activiti/test/**"
     ]
 
     def author = "Lim Chee Kin"
@@ -54,12 +59,12 @@ class ActivitiGrailsPlugin {
  Discussion Forum: http://groups.google.com/group/grails-activiti-plugin
 '''
 
-    // URL to the plugin's documentation
-    def documentation = "http://grails.org/plugin/activiti"
+	// URL to the plugin's documentation
+	def documentation = "http://grails.org/plugin/activiti"
 
-    def license = "APACHE"
-    def issueManagement = [system: 'GitHub', url: 'https://github.com/limcheekin/activiti/issues']
-    def scm = [url: 'https://github.com/limcheekin/activiti'] 
+	def license = "APACHE"
+	def issueManagement = [system: 'GitHub', url: 'https://github.com/limcheekin/activiti/issues']
+	def scm = [url: 'https://github.com/limcheekin/activiti']
 
 	def confWatchedResources = [CH.config.activiti.deploymentResources, "file:./grails-app/controllers/**/*.groovy"].flatten()
 	def defaultWatchedResources = [ActivitiConstants.DEFAULT_DEPLOYMENT_RESOURCES, "file:./grails-app/controllers/**/*.groovy"].flatten()
@@ -69,54 +74,54 @@ class ActivitiGrailsPlugin {
     boolean useFormKey = CH.config.activiti.useFormKey?:ActivitiConstants.DEFAULT_USE_FORM_KEY
 
     def doWithWebDescriptor = { xml ->
-        // TODO Implement additions to web.xml (optional), this event occurs before 
+      // TODO Implement additions to web.xml (optional), this event occurs before
     }
 
     def doWithSpring = {
 		  def disabledActiviti = System.getProperty("disabledActiviti")
 		  
 		  if (!disabledActiviti && !CH.config.activiti.disabled) {
-		    	println "Configuring Activiti Process Engine ..."	
-				
-		    	processEngineConfiguration(org.activiti.spring.SpringProcessEngineConfiguration) {
-		            processEngineName = CH.config.activiti.processEngineName?:ActivitiConstants.DEFAULT_PROCESS_ENGINE_NAME
-		            databaseType = CH.config.activiti.databaseType?:ActivitiConstants.DEFAULT_DATABASE_TYPE
-		            databaseSchemaUpdate = CH.config.activiti.databaseSchemaUpdate ? CH.config.activiti.databaseSchemaUpdate.toString() : ActivitiConstants.DEFAULT_DATABASE_SCHEMA_UPDATE
-		            deploymentName = CH.config.activiti.deploymentName?:ActivitiConstants.DEFAULT_DEPLOYMENT_NAME
-		            deploymentResources = CH.config.activiti.deploymentResources?:ActivitiConstants.DEFAULT_DEPLOYMENT_RESOURCES
-		            jobExecutorActivate = CH.config.activiti.jobExecutorActivate?:ActivitiConstants.DEFAULT_JOB_EXECUTOR_ACTIVATE
-					      history = CH.config.activiti.history?:ActivitiConstants.DEFAULT_HISTORY
-		            mailServerHost = CH.config.activiti.mailServerHost?:ActivitiConstants.DEFAULT_MAIL_SERVER_HOST
-		            mailServerPort = CH.config.activiti.mailServerPort?:ActivitiConstants.DEFAULT_MAIL_SERVER_PORT
-		            mailServerUsername = CH.config.activiti.mailServerUsername
-		            mailServerPassword = CH.config.activiti.mailServerPassword
-		            mailServerDefaultFrom = CH.config.activiti.mailServerDefaultFrom?:ActivitiConstants.DEFAULT_MAIL_SERVER_FROM
-		            dataSource = ref("dataSource")
-		            transactionManager = ref("transactionManager")
+	      println "Configuring Activiti Process Engine ..."
 
-                    // Define custom serializable types for fix issue with serialization
-                    customPreVariableTypes = [new SerializableVariableType()]
-		        }
-				
-				  processEngine(org.activiti.spring.ProcessEngineFactoryBean) {
-					  processEngineConfiguration = ref("processEngineConfiguration")
-				  }
-		
-		    	runtimeService(processEngine:"getRuntimeService") 
-		        repositoryService(processEngine:"getRepositoryService")
-		    	taskService(processEngine:"getTaskService") 
-		    	managementService(processEngine:"getManagementService") 
-		    	identityService(processEngine:"getIdentityService")
-		    	historyService(processEngine:"getHistoryService")
-		        formService(processEngine:"getFormService")
-				
-		        activitiService(org.grails.activiti.ActivitiService) {
-		            runtimeService = ref("runtimeService")
-		            taskService = ref("taskService")
-		            identityService = ref("identityService")
-		            formService = ref("formService")
-		        }
-			  
+	      processEngineConfiguration(org.activiti.spring.SpringProcessEngineConfiguration) {
+	        processEngineName = CH.config.activiti.processEngineName?:ActivitiConstants.DEFAULT_PROCESS_ENGINE_NAME
+	        databaseType = CH.config.activiti.databaseType?:ActivitiConstants.DEFAULT_DATABASE_TYPE
+	        databaseSchemaUpdate = CH.config.activiti.databaseSchemaUpdate ? CH.config.activiti.databaseSchemaUpdate.toString() : ActivitiConstants.DEFAULT_DATABASE_SCHEMA_UPDATE
+	        deploymentName = CH.config.activiti.deploymentName?:ActivitiConstants.DEFAULT_DEPLOYMENT_NAME
+	        deploymentResources = CH.config.activiti.deploymentResources?:ActivitiConstants.DEFAULT_DEPLOYMENT_RESOURCES
+	        jobExecutorActivate = CH.config.activiti.jobExecutorActivate?:ActivitiConstants.DEFAULT_JOB_EXECUTOR_ACTIVATE
+		      history = CH.config.activiti.history?:ActivitiConstants.DEFAULT_HISTORY
+	        mailServerHost = CH.config.activiti.mailServerHost?:ActivitiConstants.DEFAULT_MAIL_SERVER_HOST
+	        mailServerPort = CH.config.activiti.mailServerPort?:ActivitiConstants.DEFAULT_MAIL_SERVER_PORT
+	        mailServerUsername = CH.config.activiti.mailServerUsername
+	        mailServerPassword = CH.config.activiti.mailServerPassword
+	        mailServerDefaultFrom = CH.config.activiti.mailServerDefaultFrom?:ActivitiConstants.DEFAULT_MAIL_SERVER_FROM
+	        dataSource = ref("dataSource")
+	        transactionManager = ref("transactionManager")
+
+	        // Define custom serializable types for fix issue with serialization
+	        customPreVariableTypes = [new SerializableVariableType()]
+				}
+
+			  processEngine(org.activiti.spring.ProcessEngineFactoryBean) {
+				  processEngineConfiguration = ref("processEngineConfiguration")
+			  }
+
+	      runtimeService(processEngine:"getRuntimeService")
+	      repositoryService(processEngine:"getRepositoryService")
+	      taskService(processEngine:"getTaskService")
+	      managementService(processEngine:"getManagementService")
+	      identityService(processEngine:"getIdentityService")
+	      historyService(processEngine:"getHistoryService")
+	      formService(processEngine:"getFormService")
+
+	      activitiService(org.grails.activiti.ActivitiService) {
+	          runtimeService = ref("runtimeService")
+	          taskService = ref("taskService")
+	          identityService = ref("identityService")
+	          formService = ref("formService")
+	      }
+
 				println "... finished configuring Activiti Process Engine."
 		  }
     }

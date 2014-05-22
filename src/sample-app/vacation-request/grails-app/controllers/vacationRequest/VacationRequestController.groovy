@@ -14,8 +14,8 @@
  */
 package vacationRequest
 
+import grails.util.Holders as CH
 import org.grails.activiti.ApprovalStatus
-import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH
 import org.grails.activiti.ActivitiConstants
   /**
  *
@@ -40,7 +40,7 @@ class VacationRequestController {
         params.max = Math.min(params.max ? params.int('max') : 10, 100)
         [vacationRequestInstanceList: VacationRequest.list(params), 
 				vacationRequestInstanceTotal: VacationRequest.count(),
-				myTasksCount: assignedTasksCount]				
+				myTasksCount: assignedTasksCount]
     }
 
     def create = {

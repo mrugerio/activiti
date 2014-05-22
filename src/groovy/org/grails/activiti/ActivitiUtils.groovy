@@ -14,16 +14,17 @@
  */
 package org.grails.activiti
 
+import grails.util.Holders
+
 /**
  *
  * @author <a href='mailto:limcheekin@vobject.com'>Lim Chee Kin</a>
  *
  * @since 5.0.beta2
  */
-import org.codehaus.groovy.grails.commons.ApplicationHolder
 
 class ActivitiUtils {
-	static def context = ApplicationHolder.getApplication().getMainContext()
+	static def context = Holders.grailsApplication.mainContext
 	
 	static getActivitiService() {
 		context.getBean("activitiService")

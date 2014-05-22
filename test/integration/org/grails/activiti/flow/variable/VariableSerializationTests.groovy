@@ -1,9 +1,7 @@
 package org.grails.activiti.flow.variable
 
 import org.activiti.engine.RuntimeService
-import org.activiti.engine.TaskService
-import org.junit.After
-import org.junit.Before
+import org.grails.activiti.test.FakeFlowVariable
 import org.junit.Test
 import org.activiti.engine.RepositoryService
 
@@ -28,7 +26,8 @@ class VariableSerializationTests {
         def process = runtimeService.startProcessInstanceByKey("sampleProcess")
 
         // check flow variables
-        runtimeService.setVariable(process.processInstanceId, "var1", new FakeFlowVariable(name: 'Matt', age: 21))
+	      FakeFlowVariable ffv = new FakeFlowVariable(name: 'Matt', age: 21)
+        runtimeService.setVariable(process.processInstanceId, "var1", ffv)
         def flowVariable = (FakeFlowVariable) runtimeService.getVariable(process.processInstanceId, "var1")
 
         // kill process

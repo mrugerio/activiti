@@ -19,11 +19,10 @@
  */
  --%>
  
-<%@ page import="org.grails.activiti.ActivitiUtils" %>
-<%@ page import="org.codehaus.groovy.grails.commons.ConfigurationHolder" %>
+<%@ page import="grails.util.Holders; org.grails.activiti.ActivitiUtils" %>
 <%@ page import="org.grails.activiti.ActivitiConstants" %>
 
-<g:set var="sessionUsernameKey" value="${ConfigurationHolder.config.activiti.sessionUsernameKey?:ActivitiConstants.DEFAULT_SESSION_USERNAME_KEY}" />
+<g:set var="sessionUsernameKey" value="${Holders.config.activiti.sessionUsernameKey?:ActivitiConstants.DEFAULT_SESSION_USERNAME_KEY}" />
 <html>
     <head>
         <title>Welcome to Grails Activiti Plugin</title>
@@ -86,7 +85,7 @@
                     <ul>
                         <li>App version: <g:meta name="app.version"></g:meta></li>
                         <li>Grails version: <g:meta name="app.grails.version"></g:meta></li>
-                        <li>Groovy version: ${org.codehaus.groovy.runtime.InvokerHelper.getVersion()}</li>
+                        <li>Groovy version: ${GroovySystem.version}</li>
                         <li>JVM version: ${System.getProperty('java.version')}</li>
                         <li>Controllers: ${grailsApplication.controllerClasses.size()}</li>
                         <li>Domains: ${grailsApplication.domainClasses.size()}</li>
@@ -132,18 +131,18 @@
             controllers to start process and working on task form. Further below is list of other controllers, click on each to execute its default action:
             </p>
             <g:if test="${!pluginManager.hasGrailsPlugin('activitiSpringSecurity')}">
-             <div id="userList" class="dialog">
+              <div id="userList" class="dialog">
                 <h2>Activiti Users:</h2>
-                				<%
+                  <%
 										def userList=[:]
 										def identityService = ActivitiUtils.identityService
 								    def users = identityService.createUserQuery().orderByUserId().asc().list()
 										for (user in users) {
-                        def groups = identityService.createGroupQuery().groupMember(user.id).orderByGroupId().asc().list()
-                        def groupIds = groups?" ${groups.collect{it.id}}":""
-										    userList[user.id]="${user.id}${groupIds}"
-                                        }		
-								 %>
+	                    def groups = identityService.createGroupQuery().groupMember(user.id).orderByGroupId().asc().list()
+	                    def groupIds = groups?" ${groups.collect{it.id}}":""
+									    userList[user.id]="${user.id}${groupIds}"
+                    }
+							    %>
                 <g:set var="${sessionUsernameKey}" value="${params.username}" scope="session" />
                 								 
 								<g:form>
@@ -151,7 +150,7 @@
                 		optionValue="value" noSelection="['null': '[Select User]']"
                 		onchange="this.form.submit();" value="${session[sessionUsernameKey]}"/>	
                 </g:form>
-            </div>
+              </div>
             </g:if>
             <g:if test="${session[sessionUsernameKey]}">
       			<br />Current User: <strong>${session[sessionUsernameKey]}</strong>

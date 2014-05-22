@@ -23,7 +23,6 @@
  * 
  */
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
-import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH
 import grails.util.BuildSettingsHolder as build
 
 includeTargets << grailsScript("Init")
@@ -74,6 +73,5 @@ target(createBar: "Create Activiti Business Archive (BAR) that contains process 
 		fileset dir:"${basedir}/target/bar"
 	}	
 }
-
 
 setDefaultTarget(deploy)
