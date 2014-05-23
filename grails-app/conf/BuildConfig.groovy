@@ -12,7 +12,7 @@ grails.project.dependency.resolution = {
   }
 
   dependencies {
-	  compile "org.springframework:spring-orm:$springVersion"
+	  //compile "org.springframework:spring-orm:$springVersion"
 
 		compile ('org.activiti:activiti-engine:5.15.1') {
 			excludes 'livetribe-jsr223', 'spring-beans'
