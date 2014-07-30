@@ -31,7 +31,7 @@ class ActivitiService {
 	def identityService
 	def formService
 	String sessionUsernameKey = CH.config.activiti.sessionUsernameKey?:ActivitiConstants.DEFAULT_SESSION_USERNAME_KEY
-	String usernamePropertyName = CH.config.grails.plugins.springsecurity.userLookup.usernamePropertyName
+	String usernamePropertyName = CH.config.grails.plugin.springsecurity.userLookup.usernamePropertyName
 
 	def startProcess(Map params) {
 		if (params.businessKey) {
@@ -197,25 +197,41 @@ class ActivitiService {
 	def setPriority(String taskId, int priority) {
 		taskService.setPriority(taskId, priority)
 	}
-	
-	def getCandidateUserIds(String taskId) {
-		def identityLinks = taskService.getIdentityLinksForTask(taskId)
-		def userIds = []
-		def users
-		identityLinks.each { identityLink -> 
-			if (identityLink.groupId) {
-				users = identityService.createUserQuery()
-					      .memberOfGroup(identityLink.groupId)
-								.orderByUserId().asc().list()
-				if (CH.grailsApplication.mainContext.pluginManager.hasGrailsPlugin('activitiSpringSecurity')) {
-			    userIds << users?.collect { it."$usernamePropertyName" }
-				} else { 
-				  userIds << users?.collect { it.id }
-				}
-			} else {
-			  userIds << identityLink.userId
-			}
-		}  		
-		return userIds.flatten().unique()
-	}
+
+    def getCandidateUserIds(String taskId) {
+        def identityLinks = taskService.getIdentityLinksForTask(taskId)
+        def userIds = []
+        def users
+        identityLinks.each {  identityLink ->
+
+            if (identityLink.groupId) {
+                //NO FUNCIONA, SE TUVO QUE OBTENER DE OTRA FORMA LOS USUARIOS
+                //users = identityService.createUserQuery().memberOfGroup(identityLink.groupId).orderByUserId().asc().list()
+
+                def user = SpringSecurityUtils.securityConfig.userLookup.userDomainClassName
+                def domainUser = CH.grailsApplication.getDomainClass(user).clazz
+                String nombreLogicoUsuario = CH.grailsApplication.getDomainClass(user).logicalPropertyName
+
+                def rolUser = SpringSecurityUtils.securityConfig.userLookup.authorityJoinClassName
+                def domainRolUser = CH.grailsApplication.getDomainClass(rolUser).clazz
+
+                def rol = SpringSecurityUtils.securityConfig.authority.className
+                def domainRol = CH.grailsApplication.getDomainClass(rol).clazz
+                String nombreRol = CH.grailsApplication.getDomainClass(rol).name
+
+                String sentencia = "findAllBy"+"${nombreRol}"
+                users = domainRolUser."${sentencia}"(domainRol.get(identityLink.groupId))
+
+                if (CH.grailsApplication.mainContext.pluginManager.hasGrailsPlugin('activitiSpringSecurity')) {
+                    userIds << users?.collect { it."${nombreLogicoUsuario}".id }
+                } else {
+                    userIds << users?.collect { it.id }
+                }
+            } else {
+                userIds << identityLink.userId
+            }
+        }
+
+        return userIds.flatten().unique()
+    }
 }

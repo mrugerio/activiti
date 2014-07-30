@@ -23,6 +23,7 @@
 <%@ page import="org.activiti.engine.task.IdentityLink" %>
 <%@ page import="org.grails.activiti.ActivitiUtils" %>
 <%@ page import="grails.util.GrailsNameUtils" %>
+<%@ page import="grails.plugin.springsecurity.SpringSecurityUtils" %>
 
 <html>
     <head>
@@ -81,26 +82,40 @@
                             </td>
                         
                             <td>
-								                				<%
-																		def userList=[:]
-																		def userIds = ActivitiUtils.activitiService.getCandidateUserIds(taskInstance.id)
-																		def groups
-																		def groupIds
-                                                                                                                                                def User = grailsApplication.getDomainClass(grailsApplication.config.grails.plugins.springsecurity.userLookup.userDomainClassName).clazz
-                                                                                                                                                def users = []
-																		if (!applicationContext.getBean('pluginManager').hasGrailsPlugin('activitiSpringSecurity')) {
-                                                                                                                                                  users = User."findAllByIdInList"(userIds)
-																		} else {
-																		  users = User."findAllBy${GrailsNameUtils.getClassNameRepresentation(grailsApplication.config.grails.plugins.springsecurity.userLookup.usernamePropertyName)}InList"(userIds)
-																		}
-                                                                        
-                                                                
-                                                                                                                                                for (user in users) {
-															          groups = ActivitiUtils.identityService.createGroupQuery().groupMember(user.id).orderByGroupId().asc().list()
-															          groupIds = groups?" ${groups.collect{it.name}}":""
-																				userList[user.username]="${user.username}${groupIds}"
-																			}
-																 %>                            
+                                <%
+                                    def userList=[:]
+                                    def userIds = ActivitiUtils.activitiService.getCandidateUserIds(taskInstance.id)
+                                    def groups
+                                    def groupIds
+                                    def User = grailsApplication.getDomainClass(grailsApplication.config.grails.plugin.springsecurity.userLookup.userDomainClassName).clazz
+                                    def nombreUsuario = grailsApplication.getDomainClass(grailsApplication.config.grails.plugin.springsecurity.userLookup.userDomainClassName).name
+
+                                    def rol = SpringSecurityUtils.securityConfig.authority.className
+                                    def nombreLogicoRol = grailsApplication.getDomainClass(rol).logicalPropertyName
+
+                                    def users = []
+                                    if (!applicationContext.getBean('pluginManager').hasGrailsPlugin('activitiSpringSecurity')) {
+                                        users = User."findAllByIdInList"(userIds)
+                                    } else {
+                                        users = User."findAllBy${GrailsNameUtils.getClassNameRepresentation(grailsApplication.config.grails.plugin.springsecurity.userLookup.usernamePropertyName)}InList"(userIds)
+                                        users = User."findAllByIdInList"(userIds)
+                                    }
+
+                                    for (user in users) {
+                                        //NO FUNCIONA, SE TUVO QUE OBTENER DE OTRA FORMA LOS GRUPOS
+                                        groups = ActivitiUtils.identityService.createGroupQuery().groupMember(user.id).orderByGroupId().asc().list()
+
+                                        def rolUser = SpringSecurityUtils.securityConfig.userLookup.authorityJoinClassName
+                                        def domainRolUser = grailsApplication.getDomainClass(rolUser).clazz
+
+                                        String sentencia = "findAllBy"+"${nombreUsuario}"
+                                        groups = domainRolUser."${sentencia}"(User.get(user.id))
+
+                                        groupIds = groups?" ${groups.collect{it."${nombreLogicoRol}".name}}":""
+                                        userList[user.username]="${user.username}${groupIds}"
+                                    }
+
+                                %>
 							                <g:form action="setAssignee">
 							                  <g:hiddenField name="taskId" value="${taskInstance.id}" />
 							                	<g:select name="assignee" from="${userList}" optionKey="key" 
