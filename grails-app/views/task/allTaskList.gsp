@@ -103,7 +103,7 @@
 
                                     for (user in users) {
                                         //NO FUNCIONA, SE TUVO QUE OBTENER DE OTRA FORMA LOS GRUPOS
-                                        groups = ActivitiUtils.identityService.createGroupQuery().groupMember(user.id).orderByGroupId().asc().list()
+                                        //groups = ActivitiUtils.identityService.createGroupQuery().groupMember(user.id).orderByGroupId().asc().list()
 
                                         def rolUser = SpringSecurityUtils.securityConfig.userLookup.authorityJoinClassName
                                         def domainRolUser = grailsApplication.getDomainClass(rolUser).clazz
